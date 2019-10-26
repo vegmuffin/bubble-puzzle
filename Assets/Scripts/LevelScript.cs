@@ -7,9 +7,14 @@ public class LevelScript : MonoBehaviour
 {
     public void Click()
     {
-        if(transform.gameObject.name == "Level1")
+        switch(transform.gameObject.name)
         {
-            SceneManager.LoadScene("Level_1", LoadSceneMode.Single);
+            case "Level1":
+                SceneManager.LoadScene("Level_1", LoadSceneMode.Single);
+                break;
+            case "Level2":
+                SceneManager.LoadScene("Level_2", LoadSceneMode.Single);
+                break;
         }
     }
 }

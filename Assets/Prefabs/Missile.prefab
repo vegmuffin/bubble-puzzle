@@ -97,6 +97,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   explosionSprite: {fileID: 21300000, guid: 66751b850bf6f43eb9094a1d56a0c329, type: 3}
   defaultSprite: {fileID: 21300000, guid: 76e0b8d84f4df01e1b04cadadd37b7f8, type: 3}
+  missileExplosion: {fileID: 8300000, guid: 926c636f1979bd8ddbf3421ee73b9a33, type: 3}
+  missileExplosionPS: {fileID: 2222419269077798017, guid: f57a9fd4c126b31fbb18958d9555a834,
+    type: 3}
   angle: 0
   startBool: 0
 --- !u!96 &6704108973106677625

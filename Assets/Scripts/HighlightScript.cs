@@ -47,6 +47,7 @@ public class HighlightScript : MonoBehaviour, IPointerEnterHandler
             foreach(GameObject button in buttonArray)
             {
                 button.GetComponent<HighlightScript>().isThisSelected = false;
+                button.transform.GetChild(0).GetComponent<Text>().fontSize = 5;
             }
             
             isThisSelected = true;
@@ -54,6 +55,8 @@ public class HighlightScript : MonoBehaviour, IPointerEnterHandler
             rightPosition = new Vector3((transform.GetComponent<RectTransform>().rect.xMax + 4f) / 20, transform.position.y, 10);
             leftMenuCircle.transform.position = leftPosition;
             rightMenuCircle.transform.position = rightPosition;
+
+            transform.GetChild(0).GetComponent<Text>().fontSize = 4;
         }
 
     }

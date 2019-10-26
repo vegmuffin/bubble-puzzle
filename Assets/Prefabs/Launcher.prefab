@@ -103,6 +103,12 @@ MonoBehaviour:
   missile: {fileID: 515784164313837594, guid: 0a75e429af72f3a3dbfd138c120fa343, type: 3}
   timerText: {fileID: 6776152994432365701, guid: 841374558f026dea9be2dc5d7544ef47,
     type: 3}
+  audioClip: {fileID: 8300000, guid: 280da389a6dcc5a3ab5ab036c6d22f87, type: 3}
+  rightButtonPrefab: {fileID: 3945028014560189812, guid: 17db6f0d6c10452ee8689322c1a1e1eb,
+    type: 3}
+  leftButtonPrefab: {fileID: 7355939160856975479, guid: 2c0616ecf1cefdb2f91541324b55b29d,
+    type: 3}
+  selection: {fileID: 8300000, guid: 85f939da8625ed51cbaaa7451d7e8991, type: 3}
   staticTextPosition: {x: 0, y: 0, z: 0}
   staticMissileTimer: 0
   missileInstance: {fileID: 0}
@@ -110,6 +116,7 @@ MonoBehaviour:
   timerTextInstance: {fileID: 0}
   launcherNumber: 0
   missileTimer: 0
+  whiteArrowInstance: {fileID: 0}
 --- !u!58 &-336822653691749674
 CircleCollider2D:
   m_ObjectHideFlags: 0

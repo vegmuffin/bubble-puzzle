@@ -28,10 +28,10 @@ public class TrampolineScript : MonoBehaviour
         bubbleCenterX = circleBounds.center.x;
         bubbleCenterY = circleBounds.center.y;
 
-        if(bubbleMinY >= trampolineMinY && bubbleCenterX > trampolineMinX && bubbleCenterY < trampolineMaxX && transform.GetComponent<Animator>().GetBool("TrampolineBool") == false)
+        if(bubbleMinY >= trampolineMinY && bubbleCenterX + 0.03f > trampolineMinX && bubbleCenterX - 0.03f < trampolineMaxX && transform.GetComponent<Animator>().GetBool("TrampolineBool") == false)
         {
             transform.GetComponent<Animator>().SetBool("TrampolineBool", true);
-            bubble.transform.GetComponent<Rigidbody2D>().AddForce(Vector2.up * 80f);
+            bubble.transform.GetComponent<Rigidbody2D>().AddForce(Vector2.up * 60f);
             transform.GetComponent<BoxCollider2D>().isTrigger = true;
         }
 

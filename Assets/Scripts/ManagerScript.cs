@@ -2,20 +2,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class ManagerScript : MonoBehaviour
 {
     private Vector3 staticCameraPosition;
-    [SerializeField]
-    private GameObject bubble;
-    [SerializeField]
-    private Camera mainCamera;
-    [SerializeField]
-    private ParticleSystem starParticleSystem;
-    [SerializeField]
-    private GameObject endPanel;
-    [SerializeField]
-    private LineRenderer guideline;
+    [SerializeField] private GameObject bubble;
+    [SerializeField] private Camera mainCamera;
+    [SerializeField] private ParticleSystem starParticleSystem;
+    [SerializeField] private GameObject endPanel;
+    [SerializeField] private LineRenderer guideline;
+    [SerializeField] private GameObject explosionIndicator;
     private ParticleSystem particleSystemInstance;
     private float boxMinX;
     private float boxMinY;
@@ -27,6 +24,9 @@ public class ManagerScript : MonoBehaviour
     private bool timerBool = false;
     private bool panelBool = false;
     private float panelAlpha = 0f;
+    private bool pauseBool = false;
+    private Text buttonDescription;
+    private List<GameObject> explosionIndicators = new List<GameObject>();
 
     public GameObject[] launcherArray;
     public LineRenderer lineRenderer;
@@ -83,7 +83,7 @@ public class ManagerScript : MonoBehaviour
             {
                 if(launcher.GetComponent<RocketLauncherScript>().launcherNumber == whichSelected)
                 {
-                    launcher.GetComponent<RocketLauncherScript>().inputFieldInstance.transform.gameObject.SetActive(false);
+                    launcher.GetComponent<RocketLauncherScript>().HideUnhideButtons(false);
                 }
             }
             lineRenderer.enabled = false;
@@ -102,12 +102,13 @@ public class ManagerScript : MonoBehaviour
                 particleSystemInstance = Instantiate(starParticleSystem, particleSystemPosition, Quaternion.identity);
                 particleSystemInstance.transform.eulerAngles = new Vector3(-90f, 0, 0);
                 isInTheBox = true;
+                hasBegun = false;
+                particleSystemBool = true;
 
                 timerBool = false;
-                GameObject bb = GameObject.Find("BeginButton");
-                GameObject mb = GameObject.Find("ManageButton");
-                bb.GetComponent<Button>().interactable = false;
-                mb.GetComponent<Button>().interactable = false;
+                GameObject.Find("BeginButton").GetComponent<Button>().interactable = false;
+                GameObject.Find("ManageButton").GetComponent<Button>().interactable = false;
+                GameObject.Find("PauseButton").GetComponent<Button>().interactable = false;
             }
         }
     }
@@ -119,15 +120,22 @@ public class ManagerScript : MonoBehaviour
         {
             if(particleSystemTimer <= 1.75f)
             {
-                particleSystemTimer += Time.deltaTime;
+                particleSystemTimer += Time.fixedDeltaTime;
             } else if(particleSystemTimer <= 4f && particleSystemTimer >= 1.75f)
             {
-                particleSystemTimer += Time.deltaTime;
+                particleSystemTimer += Time.fixedDeltaTime;
                 particleSystemInstance.Stop();
                 if(!panelBool && panelAlpha == 0f)
                 {
                     panelBool = true;
                     endPanel.SetActive(true);
+                    float screenAspect = (float)Screen.width / (float)Screen.height;
+                    float cameraHeight = mainCamera.orthographicSize * 2;
+                    Bounds bounds = new Bounds(
+                        mainCamera.transform.position,
+                        new Vector3(cameraHeight * screenAspect, cameraHeight, 0));
+                    RectTransform rTransform = endPanel.GetComponent<Image>().rectTransform;
+                    rTransform.sizeDelta = new Vector2(bounds.size.x - 100, rTransform.sizeDelta.y);
                     for(int i = 0; i < endPanel.transform.childCount; ++i)
                     {
                         endPanel.transform.GetChild(i).gameObject.SetActive(false);
@@ -146,7 +154,7 @@ public class ManagerScript : MonoBehaviour
     {
         if(timerBool)
         {
-            globalTimer += Time.deltaTime;
+            globalTimer += Time.fixedDeltaTime;
             globalTimerText.text = "Time: " + globalTimer.ToString("F1");
         }
     }
@@ -154,42 +162,41 @@ public class ManagerScript : MonoBehaviour
     // Begin button functionality (destroy trash objects, disable/enable buttons, etc.)
     public void Begin(Button btn)
     {
-        bool isEverythingOk = true;
+        hasBegun = true;
+        whichSelected = -1;
+        GameObject[] trashArray = GameObject.FindGameObjectsWithTag("Trash");
+        foreach(GameObject trash in trashArray)
+        {
+            Destroy(trash);
+        }
+
         foreach(GameObject launcher in launcherArray)
         {
-            if(launcher.GetComponent<RocketLauncherScript>().timerTextInstance == null)
-            {
-                isEverythingOk = false;
-                break;
-            }
+            RocketLauncherScript rls = launcher.GetComponent<RocketLauncherScript>();
+            rls.staticMissileTimer = rls.missileTimer;
+            rls.InitiateLauncher();
+            rls.HideUnhideButtons(false);
         }
-        if(isEverythingOk)
+
+        btn.interactable = false;
+        GameObject.Find("ManageButton").GetComponent<Button>().interactable = true;
+        GameObject.Find("PauseButton").GetComponent<Button>().interactable = true;
+        pauseBool = false;
+        bubble.GetComponent<TrailRenderer>().enabled = true;
+        bubble.GetComponent<BubbleScript>().guidelinePoints.Clear();
+        guideline.gameObject.SetActive(false);
+        if(lineRenderer.enabled == true)
         {
-            hasBegun = true;
-            whichSelected = -1;
-            GameObject[] trashArray = GameObject.FindGameObjectsWithTag("Trash");
-            foreach(GameObject trash in trashArray)
-            {
-                Destroy(trash);
-            }
-
-            foreach(GameObject launcher in launcherArray)
-            {
-                launcher.GetComponent<RocketLauncherScript>().InitiateLauncher();
-            }
-
-            btn.interactable = false;
-            GameObject.Find("ManageButton").GetComponent<Button>().interactable = true;
-            bubble.GetComponent<TrailRenderer>().enabled = true;
-            bubble.GetComponent<BubbleScript>().guidelinePoints.Clear();
-            guideline.gameObject.SetActive(false);
-            if(lineRenderer.enabled == true)
-            {
-                lineRenderer.enabled = false;
-            }
-            timerBool = true;
+            lineRenderer.enabled = false;
         }
+        timerBool = true;
         
+        for(int i = 0; i < explosionIndicators.Count; ++i)
+        {
+            Destroy(explosionIndicators[i]);
+        }
+        explosionIndicators.Clear();
+        bubble.GetComponent<BubbleScript>().explosionPoints.Clear();
     }
 
     // Manage button functionality (refresh text objects, destroy missiles, basically restart the level)
@@ -198,14 +205,19 @@ public class ManagerScript : MonoBehaviour
         if(hasBegun)
         {
             hasBegun = false;
+            Button pause = GameObject.Find("PauseButton").GetComponent<Button>();
+            if(pause.transform.GetChild(0).GetComponent<Text>().text == "unpause")
+            {
+                Time.timeScale = 1;
+                pause.transform.GetChild(0).GetComponent<Text>().text = "pause";
+            }
             Camera.main.transform.position = staticCameraPosition;
             foreach(GameObject launcher in launcherArray)
             {
                 launcher.transform.GetChild(0).GetComponent<SpriteRenderer>().enabled = true;
-                launcher.GetComponent<RocketLauncherScript>().timerTextInstance.text = launcher.GetComponent<RocketLauncherScript>().staticMissileTimer.ToString();
+                launcher.GetComponent<RocketLauncherScript>().timerTextInstance.text = launcher.GetComponent<RocketLauncherScript>().staticMissileTimer.ToString("F2");
                 launcher.GetComponent<RocketLauncherScript>().missileTimer = launcher.GetComponent<RocketLauncherScript>().staticMissileTimer;
-
-                launcher.GetComponent<RocketLauncherScript>().timerTextInstance.transform.position = mainCamera.WorldToScreenPoint(launcher.GetComponent<RocketLauncherScript>().staticTextPosition);
+                launcher.GetComponent<RocketLauncherScript>().test = 0;
             }
             foreach(GameObject missile in GameObject.FindGameObjectsWithTag("Missile"))
             {
@@ -213,43 +225,81 @@ public class ManagerScript : MonoBehaviour
             }
             btn.interactable = false;
             GameObject.Find("BeginButton").GetComponent<Button>().interactable = true;
+            pause.interactable = false;
 
             GameObject bubble = GameObject.Find("Bubble");
+            BubbleScript bs = bubble.GetComponent<BubbleScript>();
+            Rigidbody2D brb = bubble.GetComponent<Rigidbody2D>();
             bubble.transform.position = bubble.GetComponent<BubbleScript>().startingPosition;
             bubble.GetComponent<TrailRenderer>().enabled = false;
             bubble.GetComponent<ConstantForce2D>().force = Vector2.zero;
-            bubble.GetComponent<Rigidbody2D>().gravityScale = 0;
-            bubble.GetComponent<Rigidbody2D>().velocity = Vector3.zero;
-            bubble.transform.eulerAngles = Vector3.zero;
-            bubble.GetComponent<Rigidbody2D>().angularVelocity = 0f;
-            bubble.GetComponent<BubbleScript>().glass.GetComponent<SpriteRenderer>().enabled = true;
-            bubble.GetComponent<BubbleScript>().isInGlass = true;
+            brb.gravityScale = 0;
+            brb.velocity = Vector3.zero;
+            bubble.transform.rotation = Quaternion.Euler(new Vector3(0f,0f,0f));
+            brb.angularVelocity = 0f;
+            brb.Sleep();
+            bs.glass.GetComponent<SpriteRenderer>().enabled = true;
+            bs.ResetSprite();
+            bs.isInGlass = true;
 
             timerBool = false;
             globalTimer = 0f;
             globalTimerText.text = "Time: " + globalTimer.ToString("F1");
 
-            if(bubble.GetComponent<BubbleScript>().guidelinePoints.Count != 0)
+            if(bs.guidelinePoints.Count != 0)
             {
                 guideline.gameObject.SetActive(true);
-                List<Vector3> guidelinePoints = bubble.GetComponent<BubbleScript>().guidelinePoints;
+                List<Vector3> guidelinePoints = bs.guidelinePoints;
                 guideline.positionCount = guidelinePoints.Count;
                 for(int i = 0; i < guidelinePoints.Count; ++i)
                 {
                     guideline.SetPosition(i, guidelinePoints[i]);
                 }
             }
+            if(bs.explosionPoints.Count != 0)
+            {
+                for(int i = 0; i < bs.explosionPoints.Count; ++i)
+                {
+                    GameObject explosion = Instantiate(explosionIndicator, bs.explosionPoints[i], Quaternion.identity);
+                    explosionIndicators.Add(explosion);
+                }
+            }
         }
+    }
+
+    public void Pause()
+    {
+        Button pause = GameObject.Find("PauseButton").GetComponent<Button>();
+        if(pauseBool)
+        {
+            Time.timeScale = 1;
+            pause.transform.GetChild(0).GetComponent<Text>().text = "pause";
+        } else
+        {
+            Time.timeScale = 0;
+            pause.transform.GetChild(0).GetComponent<Text>().text = "unpause";
+        }
+        pauseBool = !pauseBool;
     }
 
     public void NextLevel()
     {
-
+        string sceneName = SceneManager.GetActiveScene().name;
+        string levelNumberStr = sceneName.Substring(6);
+        int levelNumber = int.Parse(levelNumberStr);
+        ++levelNumber;
+        string newLevelString = "Level_" + levelNumber.ToString();
+        SceneManager.LoadScene(newLevelString);
     }
 
     public void MainMenu()
     {
-        
+        SceneManager.LoadScene("MainMenu", LoadSceneMode.Single);
+    }
+
+    public void Replay()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     private void PopEndPanel()
@@ -270,7 +320,22 @@ public class ManagerScript : MonoBehaviour
                 {
                     endPanel.transform.GetChild(i).GetComponent<Text>().text = "TIME: " + globalTimer.ToString("F1");
                 }
+                if(i == 4 && buttonDescription == null)
+                {
+                    buttonDescription = endPanel.transform.GetChild(i).GetComponent<Text>();
+                    buttonDescription.transform.position = new Vector3(buttonDescription.transform.position.x, endPanel.transform.GetComponent<RectTransform>().rect.max.y + 315f, buttonDescription.transform.position.z);
+                }
             }
         }       
+    }
+
+    public void ChangeButtonDescription(string text)
+    {
+        buttonDescription.text = text;
+    }
+
+    public void PlaySound(AudioClip audioClip, float volume)
+    {
+        transform.GetComponent<AudioSource>().PlayOneShot(audioClip, volume);
     }
 }

@@ -1,0 +1,26 @@
+Commit on October 26, 2019. Changes:
+- Added some meh particle effects on hitting a wall;
+- Implemented a new, more simplistic time management UI (no need to type in things anymore);
+- Resolved inconsitencies between every attempt after hitting the 'Manage' button;
+- Added a separate world space canvas for non-overlay text (better management);
+- Designed & Added the second level;
+- Added a very simple sound when selecting a launcher;
+- Added in-game WASD camera movement (is and will be useful for bigger levels);
+- Added missile explosion animation;
+- Added some very retro sounding like launcher angle-adjusting sounds;
+- Added missile hit sound;
+- Finished adding a functioning end-level panel with Replay, Next level and Main Menu buttons;
+- Guideline that shows your previous attempt now shows images where the Bubble was hit by a missile;
+- Revamped the collision grid for a more pleasing background.
+--
+Thing to do until next commit:
+- Design the 3rd level;
+- Redesign the trampoline (and its animation) to better fit the new background palette;
+- Add effective bouncing off walls (with force, velocity/angle checks);
+- Add a continuous sound for launcher angle-adjustment (hopefully will sound less trippy);
+- Add missile launch sound;
+- Add some simple screen shake, especially when the bubble is hit by a missile;
+- Add glass shatter animation;
+- Add scene transitions;
+- Clean up the project, delete unused stuff;
+- Add a separate script for event images on the guideline (and add a trampoline image along with that).

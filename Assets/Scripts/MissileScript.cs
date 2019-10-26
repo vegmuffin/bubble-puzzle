@@ -9,11 +9,17 @@ public class MissileScript : MonoBehaviour
     private Sprite explosionSprite;
     [SerializeField]
     private Sprite defaultSprite;
+    [SerializeField]
+    private AudioClip missileExplosion;
+    [SerializeField]
+    private ParticleSystem missileExplosionPS;
     private float explosionTimer = 0f;
     private bool explosionBool = false;
     private float moveSpeed = 0.05f;
     private Vector3 startingPosition;
     private bool increaseSizeBool = true;
+    private ManagerScript managerScript;
+    private int frames = 0;
 
     public float angle;
     public bool startBool = false;
@@ -21,9 +27,10 @@ public class MissileScript : MonoBehaviour
     void Start()
     {
         startingPosition = transform.position;
+        managerScript = GameObject.Find("Manager").GetComponent<ManagerScript>();
     }
 
-    void Update()
+    private void FixedUpdate()
     {
         ExplosionTimer();
         Move();
@@ -33,10 +40,12 @@ public class MissileScript : MonoBehaviour
     // Moving the missile with coordinates and a touch of math.
     private void Move()
     {
-        if(startBool)
+        if(startBool && Time.timeScale != 0)
         {
+            ++frames;
             float x = transform.position.x;
             float y = transform.position.y;
+            float x2 = x;
             x += moveSpeed * Mathf.Cos(angle);
             y += moveSpeed * Mathf.Sin(angle);
             transform.position = new Vector3(x, y, transform.position.z);
@@ -75,6 +84,10 @@ public class MissileScript : MonoBehaviour
         other.transform.GetComponent<Rigidbody2D>().AddForce(dir * 40f); // Modifiable force
         other.transform.GetComponent<SpriteRenderer>().sprite = explosionSprite;
 
+        managerScript.PlaySound(missileExplosion, 0.4f);
+        ParticleSystem ps = Instantiate(missileExplosionPS, transform.position, Quaternion.identity);
+        Destroy(ps, 1f);
+
         Destroy(transform.gameObject);
     }
 
@@ -83,7 +96,7 @@ public class MissileScript : MonoBehaviour
     {
         if(explosionBool)
         {
-            explosionTimer += Time.deltaTime;
+            explosionTimer += Time.fixedDeltaTime;
             if(explosionTimer >= 2f)
             {
                 explosionTimer = 0f;
