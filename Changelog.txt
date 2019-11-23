@@ -13,14 +13,10 @@ Commit on October 26, 2019. Changes:
 - Guideline that shows your previous attempt now shows images where the Bubble was hit by a missile;
 - Revamped the collision grid for a more pleasing background.
 --
-Thing to do until next commit:
-- Design the 3rd level;
-- Redesign the trampoline (and its animation) to better fit the new background palette;
-- Add effective bouncing off walls (with force, velocity/angle checks);
-- Add a continuous sound for launcher angle-adjustment (hopefully will sound less trippy);
-- Add missile launch sound;
-- Add some simple screen shake, especially when the bubble is hit by a missile;
-- Add glass shatter animation;
-- Add scene transitions;
-- Clean up the project, delete unused stuff;
-- Add a separate script for event images on the guideline (and add a trampoline image along with that).
+Commit on November 23, 2019. Changes:
+- Screen shake;
+- Recolored trampoline;
+- Bouncing effects (included 'Soft Tiles' which are tiles on which you will not bounce)
+- Line Renderer images to signify events of the last attempt
+- Cleaned up the source a little bit
+- Started using composite collider for the tilemap to avoid certain inconsistencies;
