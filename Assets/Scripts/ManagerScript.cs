@@ -6,13 +6,13 @@ using UnityEngine.SceneManagement;
 
 public class ManagerScript : MonoBehaviour
 {
+    public static ManagerScript instance;
+
     private Vector3 staticCameraPosition;
-    [SerializeField] private GameObject bubble;
     [SerializeField] private Camera mainCamera;
     [SerializeField] private ParticleSystem starParticleSystem;
     [SerializeField] private GameObject endPanel;
     [SerializeField] private LineRenderer guideline;
-    [SerializeField] private GameObject explosionIndicator;
     private ParticleSystem particleSystemInstance;
     private float boxMinX;
     private float boxMinY;
@@ -26,7 +26,6 @@ public class ManagerScript : MonoBehaviour
     private float panelAlpha = 0f;
     private bool pauseBool = false;
     private Text buttonDescription;
-    private List<GameObject> explosionIndicators = new List<GameObject>();
 
     public GameObject[] launcherArray;
     public LineRenderer lineRenderer;
@@ -34,6 +33,11 @@ public class ManagerScript : MonoBehaviour
     public bool hasBegun = false;
     public bool isInTheBox = false;
     public Text globalTimerText;
+
+    private void Awake()
+    {
+        instance = this;
+    }
 
     // Gathering all the launchers and taking the current camera position.
     void Start()
@@ -67,7 +71,7 @@ public class ManagerScript : MonoBehaviour
     {
         if(hasBegun)
         {
-            mainCamera.transform.position = new Vector3(bubble.transform.position.x, bubble.transform.position.y, -10);
+            mainCamera.transform.position = new Vector3(BubbleScript.instance.transform.position.x, BubbleScript.instance.transform.position.y, -10);
         }
     }
 
@@ -96,7 +100,7 @@ public class ManagerScript : MonoBehaviour
     {
         if(hasBegun && !isInTheBox)
         {
-            if(bubble.transform.position.x > boxMinX && bubble.transform.position.y > boxMinY && bubble.transform.position.x < boxMaxX && bubble.transform.position.y < boxMaxY)
+            if(BubbleScript.instance.transform.position.x > boxMinX && BubbleScript.instance.transform.position.y > boxMinY && BubbleScript.instance.transform.position.x < boxMaxX && BubbleScript.instance.transform.position.y < boxMaxY)
             {
                 Vector3 particleSystemPosition = new Vector3((boxMinX+boxMaxX)/2, boxMinY + 0.2f, 10);
                 particleSystemInstance = Instantiate(starParticleSystem, particleSystemPosition, Quaternion.identity);
@@ -182,8 +186,8 @@ public class ManagerScript : MonoBehaviour
         GameObject.Find("ManageButton").GetComponent<Button>().interactable = true;
         GameObject.Find("PauseButton").GetComponent<Button>().interactable = true;
         pauseBool = false;
-        bubble.GetComponent<TrailRenderer>().enabled = true;
-        bubble.GetComponent<BubbleScript>().guidelinePoints.Clear();
+        BubbleScript.instance.GetComponent<TrailRenderer>().enabled = true;
+        BubbleScript.instance.GetComponent<BubbleScript>().guidelinePoints.Clear();
         guideline.gameObject.SetActive(false);
         if(lineRenderer.enabled == true)
         {
@@ -191,12 +195,15 @@ public class ManagerScript : MonoBehaviour
         }
         timerBool = true;
         
-        for(int i = 0; i < explosionIndicators.Count; ++i)
-        {
-            Destroy(explosionIndicators[i]);
-        }
-        explosionIndicators.Clear();
-        bubble.GetComponent<BubbleScript>().explosionPoints.Clear();
+        GuidelineImageScript gis = transform.GetComponent<GuidelineImageScript>();
+
+        for(int i = 0; i < gis.explosionIndicators.Count; ++i) Destroy(gis.explosionIndicators[i]);
+        for(int i = 0; i < gis.trampolineIndicators.Count; ++i) Destroy(gis.trampolineIndicators[i]);
+
+        gis.explosionIndicators.Clear();
+        gis.explosionPoints.Clear();
+        gis.trampolinePoints.Clear();
+        gis.trampolineIndicators.Clear();
     }
 
     // Manage button functionality (refresh text objects, destroy missiles, basically restart the level)
@@ -227,41 +234,50 @@ public class ManagerScript : MonoBehaviour
             GameObject.Find("BeginButton").GetComponent<Button>().interactable = true;
             pause.interactable = false;
 
-            GameObject bubble = GameObject.Find("Bubble");
-            BubbleScript bs = bubble.GetComponent<BubbleScript>();
-            Rigidbody2D brb = bubble.GetComponent<Rigidbody2D>();
-            bubble.transform.position = bubble.GetComponent<BubbleScript>().startingPosition;
-            bubble.GetComponent<TrailRenderer>().enabled = false;
-            bubble.GetComponent<ConstantForce2D>().force = Vector2.zero;
+            Rigidbody2D brb = BubbleScript.instance.GetComponent<Rigidbody2D>();
+            BubbleScript.instance.transform.position = BubbleScript.instance.startingPosition;
+            BubbleScript.instance.GetComponent<TrailRenderer>().enabled = false;
+            BubbleScript.instance.GetComponent<ConstantForce2D>().force = Vector2.zero;
             brb.gravityScale = 0;
             brb.velocity = Vector3.zero;
-            bubble.transform.rotation = Quaternion.Euler(new Vector3(0f,0f,0f));
+            BubbleScript.instance.transform.rotation = Quaternion.Euler(new Vector3(0f,0f,0f));
             brb.angularVelocity = 0f;
             brb.Sleep();
-            bs.glass.GetComponent<SpriteRenderer>().enabled = true;
-            bs.ResetSprite();
-            bs.isInGlass = true;
+            BubbleScript.instance.glass.GetComponent<SpriteRenderer>().enabled = true;
+            BubbleScript.instance.ResetSprite();
+            BubbleScript.instance.isInGlass = true;
 
             timerBool = false;
             globalTimer = 0f;
             globalTimerText.text = "Time: " + globalTimer.ToString("F1");
 
-            if(bs.guidelinePoints.Count != 0)
+            GuidelineImageScript gis = transform.GetComponent<GuidelineImageScript>();
+            GameObject wsCanvas = GameObject.Find("WorldSpaceCanvas");
+
+            if(BubbleScript.instance.guidelinePoints.Count != 0)
             {
                 guideline.gameObject.SetActive(true);
-                List<Vector3> guidelinePoints = bs.guidelinePoints;
+                List<Vector3> guidelinePoints = BubbleScript.instance.guidelinePoints;
                 guideline.positionCount = guidelinePoints.Count;
                 for(int i = 0; i < guidelinePoints.Count; ++i)
                 {
                     guideline.SetPosition(i, guidelinePoints[i]);
                 }
             }
-            if(bs.explosionPoints.Count != 0)
+            if(gis.explosionPoints.Count != 0)
             {
-                for(int i = 0; i < bs.explosionPoints.Count; ++i)
+                for(int i = 0; i < gis.explosionPoints.Count; ++i)
                 {
-                    GameObject explosion = Instantiate(explosionIndicator, bs.explosionPoints[i], Quaternion.identity);
-                    explosionIndicators.Add(explosion);
+                    GameObject explosion = Instantiate(gis.explosion, gis.explosionPoints[i], Quaternion.identity);
+                    gis.explosionIndicators.Add(explosion);
+                }
+            }
+            if(gis.trampolinePoints.Count != 0)
+            {
+                for(int i = 0; i < gis.trampolinePoints.Count; ++i)
+                {
+                    GameObject trampoline = Instantiate(gis.trampoline, gis.trampolinePoints[i], Quaternion.identity, wsCanvas.transform);
+                    gis.trampolineIndicators.Add(trampoline);
                 }
             }
         }

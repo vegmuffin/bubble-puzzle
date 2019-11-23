@@ -6,12 +6,9 @@ using UnityEngine.EventSystems;
 
 public class HighlightScript : MonoBehaviour, IPointerEnterHandler
 {
-    [SerializeField]
-    private GameObject leftMenuCircle;
-    [SerializeField]
-    private GameObject rightMenuCircle;
-    [SerializeField]
-    private Camera mainCamera;
+    [SerializeField] private GameObject leftMenuCircle;
+    [SerializeField] private GameObject rightMenuCircle;
+    [SerializeField] private Camera mainCamera;
     private GameObject[] buttonArray;
     private Vector3 leftPosition;
     private Vector3 rightPosition;

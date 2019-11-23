@@ -54,13 +54,17 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Scripts\BubbleScript.cs" />
+     <Compile Include="Assets\Scripts\CameraMovement.cs" />
+     <Compile Include="Assets\Scripts\CameraShake.cs" />
+     <Compile Include="Assets\Scripts\EndPanelHighlightScript.cs" />
+     <Compile Include="Assets\Scripts\GuidelineImageScript.cs" />
      <Compile Include="Assets\Scripts\HighlightScript.cs" />
-     <Compile Include="Assets\Scripts\IFCustom.cs" />
      <Compile Include="Assets\Scripts\LevelScript.cs" />
      <Compile Include="Assets\Scripts\ManagerScript.cs" />
      <Compile Include="Assets\Scripts\MenuManager.cs" />
      <Compile Include="Assets\Scripts\MissileScript.cs" />
      <Compile Include="Assets\Scripts\RocketLauncherScript.cs" />
+     <Compile Include="Assets\Scripts\TimerButton.cs" />
      <Compile Include="Assets\Scripts\TrampolineScript.cs" />
      <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Surface-Mobile.shader" />
      <None Include="Assets\TextMesh Pro\Resources\LineBreaking Leading Characters.txt" />

@@ -5,14 +5,6 @@ using UnityEngine.EventSystems;
 
 public class EndPanelHighlightScript : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-
-    private ManagerScript ms;
-
-    void Start()
-    {
-        ms = GameObject.Find("Manager").GetComponent<ManagerScript>();
-    }
-
     public void OnPointerEnter(PointerEventData eventData)
     {
         string description = "";
@@ -26,11 +18,11 @@ public class EndPanelHighlightScript : MonoBehaviour, IPointerEnterHandler, IPoi
         {
             description = "MAIN MENU";
         }
-        ms.ChangeButtonDescription(description);
+        ManagerScript.instance.ChangeButtonDescription(description);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        ms.ChangeButtonDescription("");
+        ManagerScript.instance.ChangeButtonDescription("");
     }
 }

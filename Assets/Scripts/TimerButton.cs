@@ -14,13 +14,11 @@ public class TimerButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     private RocketLauncherScript rls;
     private float holdTime = 0f;
     private bool holdBool = false;
-    private GameObject manager;
 
     void Start()
     {
         Thread.Sleep(20);
-        manager = GameObject.Find("Manager");
-        rls = manager.GetComponent<ManagerScript>().launcherArray[launcherNumber].GetComponent<RocketLauncherScript>();
+        rls = ManagerScript.instance.launcherArray[launcherNumber].GetComponent<RocketLauncherScript>();
     }
 
     void Update()

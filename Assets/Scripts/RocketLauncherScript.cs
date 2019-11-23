@@ -24,7 +24,6 @@ public class RocketLauncherScript : MonoBehaviour
     [SerializeField]
     private GameObject leftButtonPrefab;
     [SerializeField] private AudioClip selection;
-    private GameObject manager;
     private float movement = 0f;
     private float missileAngle = -90f;
     private LineRenderer lineRenderer;
@@ -45,15 +44,10 @@ public class RocketLauncherScript : MonoBehaviour
     public GameObject whiteArrowInstance;
     public int test = 0;
 
-    // Getting some references.
-    void Awake()
-    {
-        manager = GameObject.Find("Manager");
-        lineRenderer = manager.GetComponent<ManagerScript>().lineRenderer;
-    }
-
     void Start()
     {
+        lineRenderer = ManagerScript.instance.lineRenderer;
+
         Vector3 arrowPosition = new Vector3(transform.position.x, transform.position.y - 0.2f, transform.position.z);
         whiteArrowInstance = Instantiate(whiteArrow, arrowPosition, Quaternion.identity, transform);
 
@@ -71,14 +65,14 @@ public class RocketLauncherScript : MonoBehaviour
     // On mouse down - create a white arrow, set up line renderer, input field, green circle and tell the manager that this launcher is selected.
     private void OnMouseDown()
     {
-        if (launcherNumber != manager.GetComponent<ManagerScript>().whichSelected && !manager.GetComponent<ManagerScript>().hasBegun)
+        if (launcherNumber != ManagerScript.instance.whichSelected && !ManagerScript.instance.hasBegun)
         {
             Thread.Sleep(20);
             DestroySelection();
 
-            manager.GetComponent<ManagerScript>().whichSelected = launcherNumber;
-            manager.GetComponent<ManagerScript>().lineRenderer.enabled = true;
-            manager.GetComponent<ManagerScript>().PlaySound(selection, 1.5f);
+            ManagerScript.instance.whichSelected = launcherNumber;
+            lineRenderer.enabled = true;
+            ManagerScript.instance.PlaySound(selection, 1.5f);
 
             Instantiate(selectionCircle, transform.position, Quaternion.identity);
 
@@ -87,7 +81,7 @@ public class RocketLauncherScript : MonoBehaviour
                 InitializeButtons(textPosition, wsCanvas);
             }
             
-            foreach (GameObject launcher in manager.GetComponent<ManagerScript>().launcherArray)
+            foreach (GameObject launcher in ManagerScript.instance.launcherArray)
             {
                 launcher.GetComponent<RocketLauncherScript>().HideUnhideButtons(false);
             }
@@ -106,7 +100,7 @@ public class RocketLauncherScript : MonoBehaviour
     // Updating the angle for white arrow as well as the line renderer when axis input is detected.
     private void UpdateAngle()
     {
-        if (launcherNumber == manager.GetComponent<ManagerScript>().whichSelected)
+        if (launcherNumber == ManagerScript.instance.whichSelected)
         {
 
             movement = Input.GetAxisRaw("Horizontal");
@@ -130,7 +124,7 @@ public class RocketLauncherScript : MonoBehaviour
                 soundTimer += Time.deltaTime;
                 if (soundTimer >= 0.08f)
                 {
-                    manager.GetComponent<ManagerScript>().PlaySound(audioClip, 0.25f);
+                    ManagerScript.instance.PlaySound(audioClip, 0.25f);
                     soundTimer = 0f;
                 }
             }
@@ -168,7 +162,7 @@ public class RocketLauncherScript : MonoBehaviour
     // Run the timer, after it ends, the missiles are launched.
     private void RunMissileTimer()
     {
-        if (manager.GetComponent<ManagerScript>().hasBegun)
+        if (ManagerScript.instance.hasBegun)
         {
             missileTimer -= Time.fixedDeltaTime;
             if (missileTimer > 0)

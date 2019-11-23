@@ -18,7 +18,6 @@ public class MissileScript : MonoBehaviour
     private float moveSpeed = 0.05f;
     private Vector3 startingPosition;
     private bool increaseSizeBool = true;
-    private ManagerScript managerScript;
     private int frames = 0;
 
     public float angle;
@@ -27,7 +26,6 @@ public class MissileScript : MonoBehaviour
     void Start()
     {
         startingPosition = transform.position;
-        managerScript = GameObject.Find("Manager").GetComponent<ManagerScript>();
     }
 
     private void FixedUpdate()
@@ -74,6 +72,11 @@ public class MissileScript : MonoBehaviour
 
     // On collision, destroy the missile and add force to the bubble.
     private void OnTriggerEnter2D(Collider2D other) {
+        if(CameraShake.instance.timer == 0.5f)
+            CameraShake.instance.StartCoroutine(CameraShake.instance.ShakeCamera());
+        else
+            CameraShake.instance.timer = 0.5f;
+
         float x1 = other.transform.position.x;
         float y1 = other.transform.position.y;
         float x2 = transform.position.x;
@@ -84,7 +87,7 @@ public class MissileScript : MonoBehaviour
         other.transform.GetComponent<Rigidbody2D>().AddForce(dir * 40f); // Modifiable force
         other.transform.GetComponent<SpriteRenderer>().sprite = explosionSprite;
 
-        managerScript.PlaySound(missileExplosion, 0.4f);
+        ManagerScript.instance.PlaySound(missileExplosion, 0.4f);
         ParticleSystem ps = Instantiate(missileExplosionPS, transform.position, Quaternion.identity);
         Destroy(ps, 1f);
 
@@ -101,7 +104,7 @@ public class MissileScript : MonoBehaviour
             {
                 explosionTimer = 0f;
                 explosionBool = false;
-                GameObject.Find("Bubble").transform.GetComponent<SpriteRenderer>().sprite = defaultSprite;
+                BubbleScript.instance.GetComponent<SpriteRenderer>().sprite = defaultSprite;
             }
         }
     }
